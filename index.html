@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>COLOR CHALLENGE</title>
+  <style>
+    :root{
+      --bg0:#0b1220;
+      --bg1:#121b2f;
+      --card: rgba(255,255,255,.08);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --stroke: rgba(255,255,255,.16);
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --r: #ff3b30;
+      --o: #ff9500;
+      --y: #ffd60a;
+      --g: #34c759;
+      --b: #0a84ff;
+      --i: #5856d6;
+      --v: #af52de;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(10,132,255,.20), transparent 60%),
+        radial-gradient(900px 700px at 85% 25%, rgba(175,82,222,.18), transparent 60%),
+        radial-gradient(1000px 800px at 50% 100%, rgba(52,199,89,.12), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: clamp(14px, 2.5vw, 28px);
+    }
+
+    .app{
+      width: min(980px, 100%);
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: clamp(12px, 2vw, 18px);
+      align-items:start;
+    }
+
+    @media (max-width: 860px){
+      .app{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position: relative;
+    }
+
+    .panel.header{
+      padding: 18px 18px 14px;
+    }
+
+    .titleRow{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+    }
+
+    h1{
+      margin:0;
+      font-size: clamp(20px, 2.6vw, 30px);
+      letter-spacing: .04em;
+    }
+
+    .sub{
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .hud{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .stat{
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      padding: 10px 12px;
+      min-height: 58px;
+    }
+    .stat .k{
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing:.02em;
+    }
+    .stat .v{
+      margin-top: 6px;
+      font-size: 18px;
+      font-weight: 750;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing:.02em;
+    }
+    .dot{
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(255,255,255,.12) inset, 0 10px 18px rgba(0,0,0,.22);
+    }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      align-items:center;
+      justify-content: space-between;
+    }
+
+    .btnRow{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+
+    button{
+      appearance:none;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.10);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 800;
+      letter-spacing:.02em;
+      cursor: pointer;
+      transition: transform .08s ease, background .12s ease, border-color .12s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:hover{ background: rgba(255,255,255,.14); }
+    button:active{ transform: translateY(1px) scale(.99); }
+    button.primary{
+      background: rgba(10,132,255,.18);
+      border-color: rgba(10,132,255,.35);
+    }
+    button.primary:hover{ background: rgba(10,132,255,.24); }
+    button.ghost{ background: transparent; }
+
+    .boardWrap{ padding: 14px; }
+
+    .boardCard{
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 22px;
+      padding: 14px;
+    }
+
+    .boardTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .legend{
+      display:flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+
+    .legendItem{
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: 12px;
+      color: rgba(255,255,255,.82);
+      user-select:none;
+    }
+    .legendSwatch{
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 0 0 2px rgba(255,255,255,.10) inset;
+    }
+
+    .board{
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: clamp(8px, 1.2vw, 12px);
+      padding: clamp(8px, 1.2vw, 12px);
+      border-radius: 18px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.10);
+      position: relative;
+      overflow:hidden;
+      touch-action: manipulation;
+    }
+
+    .tile{
+      border: 0;
+      border-radius: 16px;
+      position: relative;
+      min-width: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      font-size: clamp(12px, 2.2vw, 16px);
+      letter-spacing: .05em;
+      color: rgba(255,255,255,.9);
+      text-shadow: 0 1px 0 rgba(0,0,0,.25);
+      box-shadow: 0 10px 18px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.14) inset;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .09s ease, filter .12s ease, opacity .18s ease;
+    }
+    .tile:active{ transform: scale(.98); filter: brightness(.98); }
+
+    .tile.done{
+      opacity: .18;
+      filter: saturate(.3) brightness(.9);
+      box-shadow: none;
+      cursor: default;
+    }
+    .tile.done::after{
+      content:"";
+      position:absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.18), transparent);
+      opacity: .35;
+      pointer-events:none;
+    }
+
+
+
+    .tile.wrong{ animation: shake .22s linear 1; }
+    @keyframes shake{
+      0%{ transform: translateX(0); }
+      25%{ transform: translateX(-3px); }
+      50%{ transform: translateX(3px); }
+      75%{ transform: translateX(-2px); }
+      100%{ transform: translateX(0); }
+    }
+
+    .overlay{
+      position:absolute;
+      inset: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      background: radial-gradient(900px 500px at 50% 0%, rgba(255,255,255,.06), rgba(0,0,0,.45));
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+    }
+    .overlay.show{
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal{
+      width: min(520px, 100%);
+      background: rgba(10,12,18,.82);
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 22px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.55);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .modal h2{
+      margin: 0 0 8px 0;
+      font-size: 20px;
+      letter-spacing: .02em;
+    }
+    .modal p{
+      margin: 0 0 12px 0;
+      color: rgba(255,255,255,.76);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .timeBig{
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: .02em;
+      margin: 10px 0 14px;
+    }
+
+    .modal .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+
+    .footerNote{
+      margin-top: 12px;
+      font-size: 12px;
+      color: rgba(255,255,255,.62);
+    }
+
+    .glowBar{
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--r), var(--o), var(--y), var(--g), var(--b), var(--i), var(--v));
+      opacity: .9;
+      box-shadow: 0 10px 30px rgba(255,255,255,.08);
+      margin-top: 12px;
+    }
+
+    .rightPanel{
+      padding: 16px;
+      display:flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .rules{
+      padding: 16px;
+    }
+    .rules h3{
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      letter-spacing:.02em;
+    }
+    .rules ul{
+      margin: 8px 0 0 18px;
+      padding:0;
+      color: rgba(255,255,255,.75);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+    .mini{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.80);
+      font-size: 12px;
+      user-select:none;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.86);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- LEFT: Board -->
+    <section class="panel">
+      <div class="panel header">
+        <div class="titleRow">
+          <div>
+            <h1>COLOR CHALLENGE</h1>
+            <div class="sub">Tap the blocks in strict rainbow sequence (R→O→Y→G→B→I→V), one click at a time. Fastest wins.</div>
+          </div>
+          <button id="newBtn" class="ghost" title="New board">New</button>
+        </div>
+
+        <div class="hud" aria-label="Game stats">
+          <div class="stat">
+            <div class="k">Time</div>
+            <div class="v"><span id="timeText">0.0</span><span style="opacity:.72;font-weight:800;">s</span></div>
+          </div>
+          <div class="stat">
+            <div class="k">Next</div>
+            <div class="v">
+              <span class="chip" id="targetChip"><span class="dot" id="targetDot"></span><span id="targetName">Red</span></span>
+              <span style="color:rgba(255,255,255,.65);font-size:12px;font-weight:800;">#<span id="stepText">1</span>/49</span>
+            </div>
+          </div>
+          <div class="stat">
+            <div class="k">Remaining</div>
+            <div class="v"><span id="remainText">49</span></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <div class="btnRow">
+            <button id="resetBtn" class="primary">Restart</button>
+            <button id="shareBtn">Share</button>
+          </div>
+          <div class="chip" id="statusChip" style="background: rgba(255,255,255,.06);">
+            <span style="opacity:.8;">Status:</span> <span id="statusText">Ready</span>
+          </div>
+        </div>
+
+        <div class="glowBar" aria-hidden="true"></div>
+      </div>
+
+      <div class="boardWrap">
+        <div class="boardCard">
+          <div class="boardTop">
+            <div class="hint">
+              Click in this repeating sequence:
+              <b>Red → Orange → Yellow → Green → Blue → Indigo → Violet</b>,
+              then back to <b>Red</b>, until all 49 tiles are cleared.
+            </div>
+            <div class="legend" aria-label="Rainbow order legend">
+              <div class="legendItem"><span class="legendSwatch" style="background:var(--r)"></span>R</div>
+              <div class="legendItem"><span class="legendSwatch" style="background:var(--o)"></span>O</div>
+              <div class="legendItem"><span class="legendSwatch" style="background:var(--y)"></span>Y</div>
+              <div class="legendItem"><span class="legendSwatch" style="background:var(--g)"></span>G</div>
+              <div class="legendItem"><span class="legendSwatch" style="background:var(--b)"></span>B</div>
+              <div class="legendItem"><span class="legendSwatch" style="background:var(--i)"></span>I</div>
+              <div class="legendItem"><span class="legendSwatch" style="background:var(--v)"></span>V</div>
+            </div>
+          </div>
+
+          <div id="board" class="board" role="grid" aria-label="7 by 7 color board"></div>
+        </div>
+      </div>
+
+      <div id="overlay" class="overlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-label="Game over">
+          <h2>Finished 🎉</h2>
+          <p>You cleared all 49 blocks in the strict repeating rainbow sequence.</p>
+          <div class="timeBig"><span id="finalTime">0.0</span><span style="opacity:.75;font-weight:900;">s</span></div>
+          <div class="row">
+            <button id="playAgainBtn" class="primary">Play Again</button>
+            <button id="copyBtn">Copy Result</button>
+          </div>
+          <div class="footerNote" id="copyNote"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Rules / Tips -->
+    <aside class="panel rightPanel">
+      <div class="rules">
+        <h3>How to play</h3>
+        <ul>
+          <li>Board is 7×7 with 7 rainbow colors.</li>
+          <li>Each color has exactly <b>7 blocks</b> (total 49).</li>
+          <li>You must tap in a <b>single repeating sequence</b>: <b>R→O→Y→G→B→I→V</b>, then repeat.</li>
+          <li>Wrong clicks don’t count (tile shakes).</li>
+          <li>Your time stops when the last tile is cleared.</li>
+        </ul>
+
+        <div class="mini">
+          <div class="pill">Tip: Watch the “Next” color chip 👆</div>
+          <div class="pill">New board: <span class="kbd">New</span></div>
+        </div>
+      </div>
+
+      <div class="rules" style="background: rgba(255,255,255,.04); border-radius: 18px; border: 1px solid rgba(255,255,255,.10);">
+        <h3>Friends mode</h3>
+        <ul>
+          <li>Pass the phone or share the link.</li>
+          <li>Best time wins. Screenshot the result.</li>
+          <li>Optional: Agree on “no pauses” 😄</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    (() => {
+      const COLORS = [
+        { key: "R", name: "Red",    css: "var(--r)" },
+        { key: "O", name: "Orange", css: "var(--o)" },
+        { key: "Y", name: "Yellow", css: "var(--y)" },
+        { key: "G", name: "Green",  css: "var(--g)" },
+        { key: "B", name: "Blue",   css: "var(--b)" },
+        { key: "I", name: "Indigo", css: "var(--i)" },
+        { key: "V", name: "Violet", css: "var(--v)" },
+      ];
+
+      const boardEl = document.getElementById("board");
+      const timeText = document.getElementById("timeText");
+      const remainText = document.getElementById("remainText");
+      const targetName = document.getElementById("targetName");
+      const targetDot  = document.getElementById("targetDot");
+      const statusText = document.getElementById("statusText");
+      const overlay = document.getElementById("overlay");
+      const finalTimeEl = document.getElementById("finalTime");
+      const copyNote = document.getElementById("copyNote");
+      const stepText = document.getElementById("stepText");
+
+      const resetBtn = document.getElementById("resetBtn");
+      const newBtn = document.getElementById("newBtn");
+      const shareBtn = document.getElementById("shareBtn");
+      const playAgainBtn = document.getElementById("playAgainBtn");
+      const copyBtn = document.getElementById("copyBtn");
+
+      let tiles = []; // {colorIndex, done, el}
+      let remainingTotal = 49;
+
+      // Strict single sequence: step 0..48, expected color = step % 7
+      let step = 0;
+
+      let running = false;
+      let startPerf = 0;
+      let rafId = 0;
+      let finished = false;
+
+      function fmtTime(sec){
+        return (Math.round(sec * 10) / 10).toFixed(1);
+      }
+
+      function shuffle(arr){
+        for (let i = arr.length - 1; i > 0; i--){
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function expectedColorIndex(){
+        return step % COLORS.length;
+      }
+
+      function setNextUI(){
+        const ci = expectedColorIndex();
+        const c = COLORS[ci];
+        targetName.textContent = c.name;
+        targetDot.style.background = c.css;
+        stepText.textContent = String(step + 1);
+	}
+
+
+
+      function setStatus(text){
+        statusText.textContent = text;
+      }
+
+      function stopTimer(){
+        running = false;
+        cancelAnimationFrame(rafId);
+      }
+
+      function tick(){
+        if (!running) return;
+        const sec = (performance.now() - startPerf) / 1000;
+        timeText.textContent = fmtTime(sec);
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function startTimerIfNeeded(){
+        if (running || finished) return;
+        running = true;
+        startPerf = performance.now();
+        setStatus("Running");
+        tick();
+      }
+
+      function updateRemainingUI(){
+        remainText.textContent = String(remainingTotal);
+      }
+
+      function finishGame(){
+        if (finished) return;
+        finished = true;
+        stopTimer();
+        setStatus("Finished");
+        const sec = Number(timeText.textContent);
+        finalTimeEl.textContent = fmtTime(sec);
+        overlay.classList.add("show");
+        overlay.setAttribute("aria-hidden", "false");
+      }
+
+      function closeOverlay(){
+        overlay.classList.remove("show");
+        overlay.setAttribute("aria-hidden", "true");
+        copyNote.textContent = "";
+      }
+
+      function buildBoard(){
+        // 49 tiles: each color exactly 7 times
+        const bag = [];
+        for (let ci = 0; ci < COLORS.length; ci++){
+          for (let k = 0; k < 7; k++) bag.push(ci);
+        }
+        shuffle(bag);
+
+        boardEl.innerHTML = "";
+        tiles = [];
+        for (let i = 0; i < 49; i++){
+          const colorIndex = bag[i];
+          const c = COLORS[colorIndex];
+
+          const btn = document.createElement("button");
+          btn.className = "tile";
+          btn.type = "button";
+          btn.style.background = c.css;
+          btn.setAttribute("role", "gridcell");
+          btn.setAttribute("aria-label", `${c.name} tile`);
+          btn.dataset.idx = String(i);
+
+          // letter hint
+          btn.textContent = c.key;
+
+          btn.addEventListener("pointerdown", (e) => {
+            e.preventDefault();
+          }, { passive: false });
+
+          btn.addEventListener("click", () => onTileClick(i));
+
+          boardEl.appendChild(btn);
+
+          tiles.push({ colorIndex, done: false, el: btn });
+        }
+
+        // Reset state
+        remainingTotal = 49;
+        step = 0;
+        running = false;
+        finished = false;
+        startPerf = 0;
+        timeText.textContent = "0.0";
+        updateRemainingUI();
+        setStatus("Ready");
+        closeOverlay();
+        setNextUI();
+      }
+
+      function onTileClick(i){
+        if (finished) return;
+
+        // Timer starts once the user clicks the game board (any tile)
+        startTimerIfNeeded();
+
+        const t = tiles[i];
+        if (!t || t.done) return;
+
+        const expected = expectedColorIndex();
+        const isCorrect = (t.colorIndex === expected);
+
+        if (!isCorrect){
+          t.el.classList.remove("wrong");
+          void t.el.offsetWidth;
+          t.el.classList.add("wrong");
+          return;
+        }
+
+        // Correct click (one step only)
+        t.done = true;
+        t.el.classList.add("done");
+        t.el.setAttribute("aria-disabled", "true");
+
+        remainingTotal -= 1;
+        step += 1;
+
+        updateRemainingUI();
+
+        if (remainingTotal <= 0 || step >= 49){
+          finishGame();
+        } else {
+          setNextUI();
+        }
+      }
+
+      function restartSameBoard(){
+        stopTimer();
+        running = false;
+        finished = false;
+        startPerf = 0;
+        timeText.textContent = "0.0";
+        remainingTotal = 49;
+        step = 0;
+        updateRemainingUI();
+        setStatus("Ready");
+        closeOverlay();
+
+        for (const t of tiles){
+          t.done = false;
+          t.el.classList.remove("done", "wrong");
+          t.el.removeAttribute("aria-disabled");
+        }
+        setNextUI();
+      }
+
+      function getResultText(){
+        const t = finished ? finalTimeEl.textContent : timeText.textContent;
+        return `COLOR CHALLENGE — ${t}s (sequence: R→O→Y→G→B→I→V repeating)`;
+      }
+
+      async function copyResult(){
+        const text = getResultText();
+        try{
+          await navigator.clipboard.writeText(text);
+          copyNote.textContent = "Copied ✅ Paste it to your group chat.";
+        } catch {
+          copyNote.textContent = "Copy failed. You can manually copy: " + text;
+        }
+      }
+
+      async function shareGame(){
+        const text = finished ? getResultText() : "Try COLOR CHALLENGE — tap rainbow blocks in sequence as fast as you can!";
+        const url = location.href;
+        if (navigator.share){
+          try{
+            await navigator.share({ title: "COLOR CHALLENGE", text, url });
+          } catch {}
+        } else {
+          try{
+            await navigator.clipboard.writeText(url);
+            setStatus("Link copied");
+            setTimeout(() => setStatus(running ? "Running" : (finished ? "Finished" : "Ready")), 900);
+          } catch {
+            alert("Share not supported. Copy this URL:\n" + url);
+          }
+        }
+      }
+
+      // If user clicks the empty board background (rare), start timer
+      boardEl.addEventListener("click", (e) => {
+        if (e.target === boardEl) startTimerIfNeeded();
+      });
+
+      resetBtn.addEventListener("click", restartSameBoard);
+      newBtn.addEventListener("click", buildBoard);
+      shareBtn.addEventListener("click", shareGame);
+      playAgainBtn.addEventListener("click", buildBoard);
+      copyBtn.addEventListener("click", copyResult);
+
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closeOverlay();
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key.toLowerCase() === "r") restartSameBoard();
+        if (e.key.toLowerCase() === "n") buildBoard();
+        if (e.key === "Escape") closeOverlay();
+      });
+
+      buildBoard();
+    })();
+  </script>
+</body>
+</html>
+
