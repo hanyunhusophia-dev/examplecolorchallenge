@@ -47,6 +47,19 @@
       align-items:start;
     }
 
+/* Mobile: top align + allow scrolling so the header/HUD is always visible */
+@media (max-width: 860px){
+  body{
+    align-items: flex-start;   /* instead of centering vertically */
+    justify-content: flex-start;
+    min-height: 100svh;        /* better than 100% on mobile */
+    overflow-y: auto;
+    padding-top: 14px;
+  }
+}
+
+
+
     @media (max-width: 860px){
       .app{ grid-template-columns: 1fr; }
     }
